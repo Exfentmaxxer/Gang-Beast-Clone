@@ -32,13 +32,21 @@ namespace TumbleRumble.Core
 
         #region Private Fields
         private bool _matchActive = false;
+        private bool _matchEnded = false;
+        private int _winnerId = -1;
         private List<int> _activePlayers = new List<int>();
         private Dictionary<int, int> _roundWins = new Dictionary<int, int>();
         #endregion
 
         #region Properties
         public bool IsMatchActive => _matchActive;
-        public int RoundsToWin => roundsToWin;
+        public bool MatchEnded => _matchEnded;
+        public int WinnerId => _winnerId;
+        public int RoundsToWin
+        {
+            get => roundsToWin;
+            set => roundsToWin = value;
+        }
         public List<int> ActivePlayers => _activePlayers;
         public int CurrentRound => roundManager != null ? roundManager.CurrentRoundNumber : 0;
         #endregion
@@ -83,6 +91,8 @@ namespace TumbleRumble.Core
 
             _activePlayers = new List<int>(playerIds);
             _roundWins.Clear();
+            _matchEnded = false;
+            _winnerId = -1;
 
             foreach (int playerId in _activePlayers)
             {
@@ -106,6 +116,8 @@ namespace TumbleRumble.Core
             Debug.Log($"[MatchManager] Match ended! Winner: Player {winnerId}");
 
             _matchActive = false;
+            _matchEnded = true;
+            _winnerId = winnerId;
             OnMatchEnd?.Invoke(winnerId);
 
             // Could transition to victory screen here
@@ -246,6 +258,34 @@ namespace TumbleRumble.Core
                                  .ToList();
 
             return standings;
+        }
+
+        /// <summary>
+        /// Check if the match is over (a player has won enough rounds)
+        /// </summary>
+        public bool IsMatchOver()
+        {
+            return CheckForMatchWinner() != -1;
+        }
+
+        /// <summary>
+        /// Get the current match winner (or -1 if no winner yet)
+        /// </summary>
+        public int GetMatchWinner()
+        {
+            return CheckForMatchWinner();
+        }
+
+        /// <summary>
+        /// Advance to the next round
+        /// </summary>
+        public void NextRound()
+        {
+            if (roundManager != null)
+            {
+                Debug.Log("[MatchManager] Advancing to next round");
+                // Round manager will handle incrementing round number
+            }
         }
         #endregion
     }

@@ -31,6 +31,7 @@ namespace TumbleRumble.Core
         #region Private Fields
         private bool _roundActive = false;
         private int _currentRoundNumber = 0;
+        private int _lastRoundWinner = -1;
         private float _remainingTime = 0f;
         private HashSet<int> _activePlayers = new HashSet<int>();
         private HashSet<int> _eliminatedPlayers = new HashSet<int>();
@@ -38,9 +39,17 @@ namespace TumbleRumble.Core
 
         #region Properties
         public bool IsRoundActive => _roundActive;
+        public bool RoundActive => _roundActive; // Alias for GameFlowManager
         public int CurrentRoundNumber => _currentRoundNumber;
+        public int RoundWinner => _lastRoundWinner;
         public float RemainingTime => _remainingTime;
+        public float RoundTimeRemaining => _remainingTime; // Alias for GameFlowManager
         public int ActivePlayerCount => _activePlayers.Count;
+        public float RoundDuration
+        {
+            get => roundDuration;
+            set => roundDuration = value;
+        }
         #endregion
 
         #region Round Control
@@ -125,6 +134,7 @@ namespace TumbleRumble.Core
             if (!_roundActive) return;
 
             int winnerId = DetermineRoundWinner();
+            _lastRoundWinner = winnerId;
             Debug.Log($"[RoundManager] Round {_currentRoundNumber} ended. Winner: Player {winnerId}");
 
             _roundActive = false;
